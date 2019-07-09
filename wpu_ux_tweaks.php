@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 0.24.1
+Version: 1.0.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
