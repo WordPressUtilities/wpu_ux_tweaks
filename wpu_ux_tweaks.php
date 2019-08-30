@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.0.1
+Version: 1.0.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -343,7 +343,7 @@ add_filter('manage_posts_columns', 'wpuux_add_column_thumb', 5);
 function wpuux_add_column_thumb($defaults) {
     global $post;
     if (apply_filters('disable__wpuux_thumbnail_post_column', false)) {
-        return;
+        return $defaults;
     }
     /* Disable for woocommerce posts */
     if (is_object($post) && function_exists('woocommerce_content') && $post->post_type == 'product') {
