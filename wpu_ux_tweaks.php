@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.1.0
+Version: 1.1.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -645,7 +645,6 @@ function wpuux_remove_novalidate_wp_footer() {
 
 add_action('wp_login', 'wpuux_user_last_login', 10, 2);
 function wpuux_user_last_login($user_login, $user) {
-    error_log('aa');
     if (apply_filters('disable__wpuux__user_last_login', false)) {
         return;
     }
