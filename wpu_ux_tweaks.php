@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.1.1
+Version: 1.2.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -430,6 +430,19 @@ function wpuux_disable_newemojis() {
 }
 
 /* ----------------------------------------------------------
+  Disable WP Oembeds
+---------------------------------------------------------- */
+
+add_action('init', 'wpuux_disable_oembed');
+function wpuux_disable_oembed() {
+    if (apply_filters('disable__wpuux_disable_oembed', false)) {
+        return;
+    }
+    remove_action('wp_head', 'wp_oembed_add_discovery_links');
+    remove_action('wp_head', 'wp_oembed_add_host_js');
+}
+
+/* ----------------------------------------------------------
   Fix admin
 ---------------------------------------------------------- */
 
@@ -494,6 +507,9 @@ class wpuux_login_logo {
     }
 
     public function override_favicon_image($url, $size, $blog_id) {
+        if (defined('WPU_UX_TWEAKS_FAVICON_URL')) {
+            return WPU_UX_TWEAKS_FAVICON_URL;
+        }
         if (!$url) {
             $base_uri = get_stylesheet_directory_uri();
             $base_dir = get_stylesheet_directory();
@@ -522,6 +538,9 @@ class wpuux_login_logo {
     }
 
     public function override_header_image($image) {
+        if (defined('WPU_UX_TWEAKS_HEADER_IMAGE_URL')) {
+            return WPU_UX_TWEAKS_HEADER_IMAGE_URL;
+        }
         if (!$image) {
             $base_uri = get_stylesheet_directory_uri();
             $base_dir = get_stylesheet_directory();
