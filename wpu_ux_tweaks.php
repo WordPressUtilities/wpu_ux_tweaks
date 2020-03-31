@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.2.0
+Version: 1.3.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -504,6 +504,7 @@ class wpuux_login_logo {
         }
         add_filter('login_headerurl', array(&$this, 'set_url'));
         add_filter('login_headertext', array(&$this, 'set_title'));
+        add_filter('admin_head', array(&$this, 'set_icon_admin'));
     }
 
     public function override_favicon_image($url, $size, $blog_id) {
@@ -564,6 +565,14 @@ class wpuux_login_logo {
 
     public function set_image() {
         echo '<style type="text/css">#login h1 a,.login h1 a{margin:0 24px;width:auto;background-size:contain;background-image:url(' . get_header_image() . ')}</style>';
+    }
+
+    public function set_icon_admin() {
+        $icon_url = get_site_icon_url(40);
+        if (!$icon_url) {
+            return;
+        }
+        echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon:before {color: transparent;background: #F0F0F0 url(' . $icon_url . ') no-repeat center center;background-size: cover;}</style>';
     }
 
     public function set_url() {
@@ -667,5 +676,23 @@ function wpuux_user_last_login($user_login, $user) {
     if (apply_filters('disable__wpuux__user_last_login', false)) {
         return;
     }
+    if (!is_object($user) || !isset($user->ID)) {
+        return;
+    }
     update_user_meta($user->ID, 'last_login', date('Y-m-d H:i:s'));
+}
+
+/* ----------------------------------------------------------
+  Disable Block Editor default FullScreen mode in WordPress 5.4
+---------------------------------------------------------- */
+
+/**
+ * Thx to @audrasjb
+ * Source : https://jeanbaptisteaudras.com/en/2020/03/disable-block-editor-default-fullscreen-mode-in-wordpress-5-4/
+ */
+
+add_action('enqueue_block_editor_assets', 'jba_disable_editor_fullscreen_by_default');
+function jba_disable_editor_fullscreen_by_default() {
+    $script = "jQuery( window ).load(function() { const isFullscreenMode = wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ); if ( isFullscreenMode ) { wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' ); } });";
+    wp_add_inline_script('wp-blocks', $script);
 }
