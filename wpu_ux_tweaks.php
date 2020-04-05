@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.3.0
+Version: 1.4.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -695,4 +695,21 @@ add_action('enqueue_block_editor_assets', 'jba_disable_editor_fullscreen_by_defa
 function jba_disable_editor_fullscreen_by_default() {
     $script = "jQuery( window ).load(function() { const isFullscreenMode = wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ); if ( isFullscreenMode ) { wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' ); } });";
     wp_add_inline_script('wp-blocks', $script);
+}
+
+/* ----------------------------------------------------------
+  User contact methods
+---------------------------------------------------------- */
+
+add_filter('user_contactmethods', 'wpuux_edit_contactmethods', 10, 1);
+function wpuux_edit_contactmethods($contactmethods) {
+    $contactmethods['facebook'] = 'Facebook';
+    $contactmethods['instagram'] = 'Instagram';
+    $contactmethods['pinterest'] = 'Pinterest';
+    $contactmethods['twitter'] = 'Twitter';
+    $contactmethods['youtube'] = 'Youtube';
+    unset($contactmethods['yim']);
+    unset($contactmethods['aim']);
+    unset($contactmethods['jabber']);
+    return $contactmethods;
 }
