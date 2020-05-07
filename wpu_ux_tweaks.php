@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.4.0
+Version: 1.5.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -679,7 +679,49 @@ function wpuux_user_last_login($user_login, $user) {
     if (!is_object($user) || !isset($user->ID)) {
         return;
     }
-    update_user_meta($user->ID, 'last_login', date('Y-m-d H:i:s'));
+    update_user_meta($user->ID, 'last_login', date_i18n('Y-m-d H:i:s'));
+}
+
+/* Admin Widget
+-------------------------- */
+
+add_action('wp_dashboard_setup', 'wpuux_user_add_dashboard_widgets');
+function wpuux_user_add_dashboard_widgets() {
+    if (!current_user_can('delete_users')) {
+        return;
+    }
+    wp_add_dashboard_widget(
+        'wpuux_user_dashboard_widget',
+        'Last Login',
+        'wpuux_user_dashboard_widget__content'
+    );
+}
+
+function wpuux_user_dashboard_widget__content() {
+    $top_users = get_users(array(
+        'meta_key' => 'last_login',
+        'number' => 10,
+        'orderby' => 'meta_value',
+        'order' => 'DESC'
+    ));
+
+    if (!is_array($top_users)) {
+        return;
+    }
+
+    if (count($top_users) < 2) {
+        return;
+    }
+    echo '<ul>';
+    foreach ($top_users as $top_user) {
+        $last_login = strtotime(get_user_meta($top_user->ID, 'last_login', 1));
+        $format = get_option('date_format') . ' - ' . get_option('time_format');
+        echo '<li>';
+        echo '<strong><a href="' . admin_url('user-edit.php?user_id=' . $top_user->ID) . '">' . esc_html($top_user->display_name) . '</a></strong> : ' . date_i18n($format, $last_login);
+        echo '</li>';
+    }
+    echo '</ul>';
+
 }
 
 /* ----------------------------------------------------------
