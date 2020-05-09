@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.5.0
+Version: 1.5.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -685,9 +685,38 @@ function wpuux_user_last_login($user_login, $user) {
 /* Admin Widget
 -------------------------- */
 
+function wpuux_user_add_dashboard_get_users() {
+    $cache_id = 'wpuux_user_add_dashboard_get_users';
+    $cache_duration = 30;
+    $top_users = wp_cache_get($cache_id);
+    if ($top_users === false) {
+        $top_users = get_users(array(
+            'meta_key' => 'last_login',
+            'number' => 10,
+            'orderby' => 'meta_value',
+            'order' => 'DESC'
+        ));
+        wp_cache_set($cache_id, $top_users, '', $cache_duration);
+    }
+
+    if (!is_array($top_users)) {
+        return array();
+    }
+
+    if (count($top_users) < 2) {
+        return array();
+    }
+
+    return $top_users;
+}
+
 add_action('wp_dashboard_setup', 'wpuux_user_add_dashboard_widgets');
 function wpuux_user_add_dashboard_widgets() {
     if (!current_user_can('delete_users')) {
+        return;
+    }
+    $top_users = wpuux_user_add_dashboard_get_users();
+    if(empty($top_users)){
         return;
     }
     wp_add_dashboard_widget(
@@ -698,18 +727,8 @@ function wpuux_user_add_dashboard_widgets() {
 }
 
 function wpuux_user_dashboard_widget__content() {
-    $top_users = get_users(array(
-        'meta_key' => 'last_login',
-        'number' => 10,
-        'orderby' => 'meta_value',
-        'order' => 'DESC'
-    ));
-
-    if (!is_array($top_users)) {
-        return;
-    }
-
-    if (count($top_users) < 2) {
+    $top_users = wpuux_user_add_dashboard_get_users();
+    if(empty($top_users)){
         return;
     }
     echo '<ul>';
