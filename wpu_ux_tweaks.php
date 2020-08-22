@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.5.1
+Version: 1.6.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -716,7 +716,7 @@ function wpuux_user_add_dashboard_widgets() {
         return;
     }
     $top_users = wpuux_user_add_dashboard_get_users();
-    if(empty($top_users)){
+    if (empty($top_users)) {
         return;
     }
     wp_add_dashboard_widget(
@@ -728,7 +728,7 @@ function wpuux_user_add_dashboard_widgets() {
 
 function wpuux_user_dashboard_widget__content() {
     $top_users = wpuux_user_add_dashboard_get_users();
-    if(empty($top_users)){
+    if (empty($top_users)) {
         return;
     }
     echo '<ul>';
@@ -773,4 +773,24 @@ function wpuux_edit_contactmethods($contactmethods) {
     unset($contactmethods['aim']);
     unset($contactmethods['jabber']);
     return $contactmethods;
+}
+
+/* ----------------------------------------------------------
+  Lazy loading
+---------------------------------------------------------- */
+
+add_filter('post_thumbnail_html', 'wpuux_post_thumbnail_html_lazyloading', 10, 5);
+function wpuux_post_thumbnail_html_lazyloading($html, $post_id, $post_thumbnail_id, $size, $attr) {
+    if (!function_exists('wp_lazy_loading_enabled')) {
+        $html = str_replace('<img', '<img loading="lazy"', $html);
+    }
+    return $html;
+}
+
+add_filter('wp_get_attachment_image_attributes', 'wpuux_wp_get_attachment_image_attributes_lazyloading', 10, 3);
+function wpuux_wp_get_attachment_image_attributes_lazyloading($attr, $attachment, $size) {
+    if (!function_exists('wp_lazy_loading_enabled')) {
+        $attr['loading'] = 'lazy';
+    }
+    return $attr;
 }
