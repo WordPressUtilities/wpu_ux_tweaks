@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.6.0
+Version: 1.6.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -151,13 +151,10 @@ add_filter('the_excerpt_rss', 'wpuux_add_copyright_feed');
 add_filter('the_content', 'wpuux_add_copyright_feed');
 
 function wpuux_add_copyright_feed($content) {
-    if (apply_filters('disable__wpuux_add_copyright_feed', false)) {
+    if (apply_filters('disable__wpuux_add_copyright_feed', false) || !is_feed()) {
         return $content;
     }
-    if (is_feed()) {
-        $content .= '<hr /><p>&copy; ' . date('Y') . ' ' . get_bloginfo('name') . ' - <a href="' . get_permalink() . '">' . get_the_title() . '</a></p>';
-    }
-    return $content;
+    return $content . '<hr /><p>&copy; ' . date('Y') . ' ' . get_bloginfo('name') . ' - <a href="' . get_permalink() . '">' . get_the_title() . '</a></p>';
 }
 
 /* ----------------------------------------------------------
@@ -572,7 +569,7 @@ class wpuux_login_logo {
         if (!$icon_url) {
             return;
         }
-        echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon:before {color: transparent;background: #F0F0F0 url(' . $icon_url . ') no-repeat center center;background-size: cover;}</style>';
+        echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon:before {color: transparent;background: transparent url(' . $icon_url . ') no-repeat center center;background-size: cover;}</style>';
     }
 
     public function set_url() {
