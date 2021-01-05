@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.6.1
+Version: 1.7.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -410,6 +410,29 @@ EOT;
 
 new wpuux_set_media_select_uploaded_init();
 
+/* ----------------------------------------------------------
+  Admin : add page template as post state
+---------------------------------------------------------- */
+
+add_filter('display_post_states', 'wpuux_display_post_states');
+function wpuux_display_post_states($states) {
+    if (apply_filters('disable__wpuux_display_post_states', false)) {
+        return $states;
+    }
+    global $post;
+    if ($post->post_type == 'page') {
+        $templates = get_page_templates(null, 'page');
+        $tpl_slug = get_page_template_slug($post->ID);
+        $tpl_name = array_search($tpl_slug, $templates);
+        if ($tpl_name) {
+            $tpl_name = apply_filters($tpl_name, '📝 ' . $tpl_name, $tpl_name, $tpl_slug);
+        }
+        if ($tpl_name) {
+            $states[] = $tpl_name;
+        }
+    }
+    return $states;
+}
 /* ----------------------------------------------------------
   Disable WP Emoji
 ---------------------------------------------------------- */
