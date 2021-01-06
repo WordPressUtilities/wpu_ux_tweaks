@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.7.0
+Version: 1.7.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -53,6 +53,9 @@ function wpuux_bad_formed_links($content) {
     $badform = array();
     $goodform = array();
 
+    $badform[] = 'href=" http';
+    $goodform[] = 'href="http';
+
     $badform[] = 'href="www.';
     $goodform[] = 'href="http://www.';
 
@@ -60,12 +63,6 @@ function wpuux_bad_formed_links($content) {
     $goodform[] = 'href="http://';
 
     $badform[] = 'href="https//';
-    $goodform[] = 'href="https://';
-
-    $badform[] = 'href=" http://';
-    $goodform[] = 'href="http://';
-
-    $badform[] = 'href=" https://';
     $goodform[] = 'href="https://';
 
     $content = str_replace($badform, $goodform, $content);
@@ -420,7 +417,7 @@ function wpuux_display_post_states($states) {
         return $states;
     }
     global $post;
-    if ($post->post_type == 'page') {
+    if ($post->post_type == 'page' && function_exists('get_page_templates')) {
         $templates = get_page_templates(null, 'page');
         $tpl_slug = get_page_template_slug($post->ID);
         $tpl_name = array_search($tpl_slug, $templates);
