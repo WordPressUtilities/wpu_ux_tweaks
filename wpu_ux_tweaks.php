@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.7.2
+Version: 1.7.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -697,7 +697,25 @@ function wpuux_user_last_login($user_login, $user) {
     if (!is_object($user) || !isset($user->ID)) {
         return;
     }
-    update_user_meta($user->ID, 'last_login', date_i18n('Y-m-d H:i:s'));
+    wpuux_user_save_last_login($user->ID);
+}
+
+add_action('current_screen', 'wpuux_user_last_login_check_dashboard');
+function wpuux_user_last_login_check_dashboard() {
+    $currentScreen = get_current_screen();
+    if ($currentScreen->base === 'dashboard') {
+        wpuux_user_save_last_login();
+    }
+}
+
+function wpuux_user_save_last_login($user_id = false) {
+    if (!$user_id) {
+        $user_id = get_current_user_id();
+    }
+    if(!$user_id){
+        return;
+    }
+    update_user_meta($user_id, 'last_login', date_i18n('Y-m-d H:i:s'));
 }
 
 /* Admin Widget
