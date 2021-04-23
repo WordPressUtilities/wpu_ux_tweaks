@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.7.3
+Version: 1.8.0
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -333,6 +333,18 @@ function wpuux_default_link_type() {
 /* Thumbnails for post columns
  -------------------------- */
 
+add_action('admin_head', 'wpuux_add_column_thumb_add_styles', 5);
+function wpuux_add_column_thumb_add_styles() {
+    if (apply_filters('disable__wpuux_thumbnail_post_column', false)) {
+        return;
+    }
+    $w = apply_filters('wpuux_thumbnail_post_column_thumbnail_width', 70);
+    echo '<style>';
+    echo '.widefat .column-wpuux_column_thumb{width: ' . $w . 'px;}';
+    echo '@media screen and (max-width: 782px){.widefat .column-wpuux_column_thumb {display:none;}}';
+    echo '</style>';
+}
+
 add_filter('manage_posts_columns', 'wpuux_add_column_thumb', 5);
 function wpuux_add_column_thumb($defaults) {
     global $post;
@@ -343,7 +355,20 @@ function wpuux_add_column_thumb($defaults) {
     if (is_object($post) && function_exists('woocommerce_content') && $post->post_type == 'product') {
         return $defaults;
     }
-    $defaults['wpuux_column_thumb'] = __('Thumbnail');
+
+    if (isset($defaults['cb'])) {
+        $columns = array();
+        foreach ($defaults as $key => $var) {
+            $columns[$key] = $var;
+            if ($key == 'cb') {
+                $columns['wpuux_column_thumb'] = __('Thumbnail');
+            }
+        }
+        $defaults = $columns;
+    } else {
+        $defaults['wpuux_column_thumb'] = __('Thumbnail');
+    }
+
     return $defaults;
 }
 
@@ -523,6 +548,7 @@ class wpuux_login_logo {
         add_filter('login_headerurl', array(&$this, 'set_url'));
         add_filter('login_headertext', array(&$this, 'set_title'));
         add_filter('admin_head', array(&$this, 'set_icon_admin'));
+        add_filter('wp_head', array(&$this, 'set_icon_admin'));
     }
 
     public function override_favicon_image($url, $size, $blog_id) {
@@ -586,6 +612,9 @@ class wpuux_login_logo {
     }
 
     public function set_icon_admin() {
+        if (!is_user_logged_in() || !is_admin_bar_showing()) {
+            return;
+        }
         $icon_url = get_site_icon_url(40);
         if (!$icon_url) {
             return;
@@ -712,7 +741,7 @@ function wpuux_user_save_last_login($user_id = false) {
     if (!$user_id) {
         $user_id = get_current_user_id();
     }
-    if(!$user_id){
+    if (!$user_id) {
         return;
     }
     update_user_meta($user_id, 'last_login', date_i18n('Y-m-d H:i:s'));
