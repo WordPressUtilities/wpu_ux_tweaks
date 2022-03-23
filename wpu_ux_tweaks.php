@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.8.0
+Version: 1.8.1
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -731,6 +731,9 @@ function wpuux_user_last_login($user_login, $user) {
 
 add_action('current_screen', 'wpuux_user_last_login_check_dashboard');
 function wpuux_user_last_login_check_dashboard() {
+    if (apply_filters('disable__wpuux__user_last_login', false)) {
+        return;
+    }
     $currentScreen = get_current_screen();
     if ($currentScreen->base === 'dashboard') {
         wpuux_user_save_last_login();
@@ -777,6 +780,9 @@ function wpuux_user_add_dashboard_get_users() {
 
 add_action('wp_dashboard_setup', 'wpuux_user_add_dashboard_widgets');
 function wpuux_user_add_dashboard_widgets() {
+    if (apply_filters('disable__wpuux__user_last_login', false)) {
+        return;
+    }
     if (!current_user_can('delete_users')) {
         return;
     }
