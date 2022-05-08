@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.8.1
+Version: 1.8.2
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -441,18 +441,32 @@ function wpuux_display_post_states($states) {
     if (apply_filters('disable__wpuux_display_post_states', false)) {
         return $states;
     }
+
     global $post;
-    if ($post && $post->post_type == 'page' && function_exists('get_page_templates')) {
-        $templates = get_page_templates(null, 'page');
-        $tpl_slug = get_page_template_slug($post->ID);
-        $tpl_name = array_search($tpl_slug, $templates);
+
+    /* Only for pages */
+    if (!$post || $post->post_type != 'page') {
+        return $states;
+    }
+
+    /* Display template name */
+    if (function_exists('get_page_templates')) {
+        $tpl_name = array_search(get_page_template_slug($post->ID), get_page_templates(null, 'page'));
         if ($tpl_name) {
-            $tpl_name = apply_filters($tpl_name, '📝 ' . $tpl_name, $tpl_name, $tpl_slug);
-        }
-        if ($tpl_name) {
-            $states[] = $tpl_name;
+            $states[] = '📝 ' . $tpl_name;
         }
     }
+
+    /* Display wputh page name */
+    if(function_exists('wputh_setup_pages_site')){
+        $pages_site = wputh_setup_pages_site(apply_filters('wputh_pages_site', array()));
+        foreach ($pages_site as $page_key => $p_details) {
+            if (get_option($page_key) == $post->ID) {
+                $states[] = '📌 ' . $p_details['post_title'];
+            }
+        }
+    }
+
     return $states;
 }
 
@@ -818,10 +832,9 @@ function wpuux_user_dashboard_widget__content() {
   Disable Block Editor default FullScreen mode in WordPress 5.4
 ---------------------------------------------------------- */
 
-/**
- * Thx to @audrasjb
- * Source : https://jeanbaptisteaudras.com/en/2020/03/disable-block-editor-default-fullscreen-mode-in-wordpress-5-4/
- */
+/* ----------------------------------------------------------
+  User contact methods
+---------------------------------------------------------- */
 
 add_action('enqueue_block_editor_assets', 'jba_disable_editor_fullscreen_by_default');
 function jba_disable_editor_fullscreen_by_default() {
@@ -830,7 +843,7 @@ function jba_disable_editor_fullscreen_by_default() {
 }
 
 /* ----------------------------------------------------------
-  User contact methods
+  Lazy loading
 ---------------------------------------------------------- */
 
 add_filter('user_contactmethods', 'wpuux_edit_contactmethods', 10, 1);
@@ -845,10 +858,6 @@ function wpuux_edit_contactmethods($contactmethods) {
     unset($contactmethods['jabber']);
     return $contactmethods;
 }
-
-/* ----------------------------------------------------------
-  Lazy loading
----------------------------------------------------------- */
 
 add_filter('post_thumbnail_html', 'wpuux_post_thumbnail_html_lazyloading', 10, 5);
 function wpuux_post_thumbnail_html_lazyloading($html, $post_id, $post_thumbnail_id, $size, $attr) {
