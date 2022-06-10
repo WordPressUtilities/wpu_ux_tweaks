@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.8.2
+Version: 1.8.3
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -325,7 +325,7 @@ function wpuux_clean_default_image_title($post_ID) {
 add_action('init', 'wpuux_default_link_type');
 function wpuux_default_link_type() {
     $image_default_link_type = get_option('image_default_link_type');
-    if ($image_default_link_type != 'none') {
+    if ($image_default_link_type != 'none' && get_site_url()) {
         update_option('image_default_link_type', 'none');
     }
 }
