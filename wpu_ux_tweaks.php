@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.8.3
+Version: 1.8.4
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -458,7 +458,7 @@ function wpuux_display_post_states($states) {
     }
 
     /* Display wputh page name */
-    if(function_exists('wputh_setup_pages_site')){
+    if (function_exists('wputh_setup_pages_site')) {
         $pages_site = wputh_setup_pages_site(apply_filters('wputh_pages_site', array()));
         foreach ($pages_site as $page_key => $p_details) {
             if (get_option($page_key) == $post->ID) {
@@ -557,7 +557,7 @@ class wpuux_login_logo {
         add_filter('get_site_icon_url', array(&$this, 'override_favicon_image'), 10, 3);
         add_filter('theme_mod_header_image', array(&$this, 'override_header_image'), 10, 1);
         if (has_header_image()) {
-            add_action('login_enqueue_scripts', array(&$this, 'set_image'));
+            add_action('login_enqueue_scripts', array(&$this, 'set_admin_image'));
         }
         add_filter('login_headerurl', array(&$this, 'set_url'));
         add_filter('login_headertext', array(&$this, 'set_title'));
@@ -621,8 +621,9 @@ class wpuux_login_logo {
         return $image;
     }
 
-    public function set_image() {
-        echo '<style type="text/css">#login h1 a,.login h1 a{margin:0 24px;width:auto;background-size:contain;background-image:url(' . get_header_image() . ')}</style>';
+    public function set_admin_image() {
+        $header_image = apply_filters('wpuux_login_logo_admin_header_image', get_header_image());
+        echo '<style type="text/css">#login h1 a,.login h1 a{margin:0 24px;width:auto;background-size:contain;background-image:url(' . $header_image . ')}</style>';
     }
 
     public function set_icon_admin() {
@@ -633,6 +634,7 @@ class wpuux_login_logo {
         if (!$icon_url) {
             return;
         }
+        $icon_url = apply_filters('wpuux_login_logo_icon_admin_url', $icon_url);
         echo '<style type="text/css">#wpadminbar #wp-admin-bar-wp-logo > .ab-item .ab-icon:before {color: transparent;background: transparent url(' . $icon_url . ') no-repeat center center;background-size: cover;}</style>';
     }
 
