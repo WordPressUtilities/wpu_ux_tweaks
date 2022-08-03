@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.8.4
+Version: 1.8.5
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -453,7 +453,7 @@ function wpuux_display_post_states($states) {
     if (function_exists('get_page_templates')) {
         $tpl_name = array_search(get_page_template_slug($post->ID), get_page_templates(null, 'page'));
         if ($tpl_name) {
-            $states[] = '📝 ' . $tpl_name;
+            $states[] = '<span class="dashicons dashicons-media-code"></span> ' . $tpl_name;
         }
     }
 
@@ -462,7 +462,7 @@ function wpuux_display_post_states($states) {
         $pages_site = wputh_setup_pages_site(apply_filters('wputh_pages_site', array()));
         foreach ($pages_site as $page_key => $p_details) {
             if (get_option($page_key) == $post->ID) {
-                $states[] = '📌 ' . $p_details['post_title'];
+                $states[] = '<span class="dashicons dashicons-admin-post"></span> ' . $p_details['post_title'];
             }
         }
     }
