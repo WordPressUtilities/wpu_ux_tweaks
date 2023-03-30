@@ -3,7 +3,7 @@
 /*
 Plugin Name: WPU UX Tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.8.7
+Version: 1.8.8
 Author: Darklg
 Author URI: http://darklg.me/
 License: MIT License
@@ -444,21 +444,22 @@ new wpuux_set_media_select_uploaded_init();
   Admin : add page template as post state
 ---------------------------------------------------------- */
 
-add_filter('display_post_states', 'wpuux_display_post_states');
-function wpuux_display_post_states($states) {
+add_filter('display_post_states', 'wpuux_display_post_states', 10, 2);
+function wpuux_display_post_states($states, $post) {
     if (apply_filters('disable__wpuux_display_post_states', false)) {
         return $states;
     }
-
-    global $post;
 
     /* Only for pages */
     if (!$post || $post->post_type != 'page') {
         return $states;
     }
 
+    $currentScreen = get_current_screen();
+    $is_main_menu = (is_object($currentScreen) && $currentScreen->base == 'nav-menus');
+
     /* Display template name */
-    if (function_exists('get_page_templates')) {
+    if (function_exists('get_page_templates') && !$is_main_menu) {
         $tpl_name = array_search(get_page_template_slug($post->ID), get_page_templates(null, 'page'));
         if ($tpl_name) {
             $states[] = '<span class="dashicons dashicons-media-code"></span> ' . $tpl_name;
