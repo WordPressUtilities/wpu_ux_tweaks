@@ -2,12 +2,17 @@
 
 /*
 Plugin Name: WPU UX Tweaks
+Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
+Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.8.8
+Version: 1.9.0
 Author: Darklg
-Author URI: http://darklg.me/
+Author URI: https://darklg.me/
+Text Domain: wpu_ux_tweaks
+Requires at least: 6.0
+Requires PHP: 8.0
 License: MIT License
-License URI: http://opensource.org/licenses/MIT
+License URI: https://opensource.org/licenses/MIT
 */
 
 if (!defined('ABSPATH')) {
@@ -168,6 +173,7 @@ function wpuux_redirect_only_result_search() {
         global $wp_query;
         if ($wp_query->post_count == 1) {
             wp_redirect(get_permalink($wp_query->post));
+            exit;
         }
     }
 }
@@ -187,7 +193,7 @@ function wpuux_redirect_avoid_404_pagination() {
     if (is_404() && $paged > 0) {
         // Redirect to first page
         wp_redirect(preg_replace("#/$wp_rewrite->pagination_base/$paged(/+)?$#", '', esc_html($_SERVER['REQUEST_URI'])), 301);
-        die();
+        exit;
     }
 }
 
@@ -265,13 +271,16 @@ function wpuux_preventheavy404() {
         'ico',
         'jpg',
         'js',
+        'log',
+        'mp4',
         'png',
         'rar',
         'tar',
-        'log',
         'txt',
+        'webm',
+        'webp',
         'xml',
-        'zip'
+        'zip',
     ));
     if (!empty($_SERVER['REQUEST_URI'])) {
         $fileExtensionParts = strtolower(pathinfo($_SERVER['REQUEST_URI'], PATHINFO_EXTENSION));
@@ -402,7 +411,7 @@ function wpuux_add_column_thumb_content($column_name, $id) {
 /* Set media select to uploaded
  -------------------------- */
 
-/* Thx http://wordpress.stackexchange.com/a/76213 */
+/* Thx https://wordpress.stackexchange.com/a/76213 */
 
 class wpuux_set_media_select_uploaded_init {
     public function __construct() {
@@ -843,10 +852,6 @@ function wpuux_user_dashboard_widget__content() {
   Disable Block Editor default FullScreen mode in WordPress 5.4
 ---------------------------------------------------------- */
 
-/* ----------------------------------------------------------
-  User contact methods
----------------------------------------------------------- */
-
 add_action('enqueue_block_editor_assets', 'jba_disable_editor_fullscreen_by_default');
 function jba_disable_editor_fullscreen_by_default() {
     $script = "jQuery( window ).load(function() { const isFullscreenMode = wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ); if ( isFullscreenMode ) { wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' ); } });";
@@ -854,14 +859,17 @@ function jba_disable_editor_fullscreen_by_default() {
 }
 
 /* ----------------------------------------------------------
-  Lazy loading
+  User contact methods
 ---------------------------------------------------------- */
 
 add_filter('user_contactmethods', 'wpuux_edit_contactmethods', 10, 1);
 function wpuux_edit_contactmethods($contactmethods) {
     $contactmethods['facebook'] = 'Facebook';
     $contactmethods['instagram'] = 'Instagram';
+    $contactmethods['linkedin'] = 'LinkedIn';
+    $contactmethods['mastodon'] = 'Mastodon';
     $contactmethods['pinterest'] = 'Pinterest';
+    $contactmethods['tiktok'] = 'TikTok';
     $contactmethods['twitter'] = 'Twitter';
     $contactmethods['youtube'] = 'Youtube';
     unset($contactmethods['yim']);
@@ -869,6 +877,10 @@ function wpuux_edit_contactmethods($contactmethods) {
     unset($contactmethods['jabber']);
     return $contactmethods;
 }
+
+/* ----------------------------------------------------------
+  Lazy loading
+---------------------------------------------------------- */
 
 add_filter('post_thumbnail_html', 'wpuux_post_thumbnail_html_lazyloading', 10, 5);
 function wpuux_post_thumbnail_html_lazyloading($html, $post_id, $post_thumbnail_id, $size, $attr) {
