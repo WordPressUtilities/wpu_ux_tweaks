@@ -5,11 +5,11 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.9.0
+Version: 1.9.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
-Requires at least: 6.0
+Requires at least: 6.2
 Requires PHP: 8.0
 License: MIT License
 License URI: https://opensource.org/licenses/MIT
@@ -280,7 +280,7 @@ function wpuux_preventheavy404() {
         'webm',
         'webp',
         'xml',
-        'zip',
+        'zip'
     ));
     if (!empty($_SERVER['REQUEST_URI'])) {
         $fileExtensionParts = strtolower(pathinfo($_SERVER['REQUEST_URI'], PATHINFO_EXTENSION));
@@ -360,7 +360,7 @@ function wpuux_add_column_thumb($defaults) {
     if (apply_filters('disable__wpuux_thumbnail_post_column', false)) {
         return $defaults;
     }
-    if(!is_object($post)){
+    if (!is_object($post)) {
         return $defaults;
     }
     /* Disable for woocommerce posts */
@@ -464,7 +464,7 @@ function wpuux_display_post_states($states, $post) {
         return $states;
     }
 
-    $currentScreen = get_current_screen();
+    $currentScreen = function_exists('get_current_screen') ? get_current_screen() : false;
     $is_main_menu = (is_object($currentScreen) && $currentScreen->base == 'nav-menus');
 
     /* Display template name */
