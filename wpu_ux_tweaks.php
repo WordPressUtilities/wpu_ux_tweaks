@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.9.1
+Version: 1.10.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -464,14 +464,19 @@ function wpuux_display_post_states($states, $post) {
         return $states;
     }
 
+    global $wp_customize;
+    $is_customizer = isset($wp_customize);
     $currentScreen = function_exists('get_current_screen') ? get_current_screen() : false;
     $is_main_menu = (is_object($currentScreen) && $currentScreen->base == 'nav-menus');
 
     /* Display template name */
-    if (function_exists('get_page_templates') && !$is_main_menu) {
+    if (function_exists('get_page_templates')) {
         $tpl_name = array_search(get_page_template_slug($post->ID), get_page_templates(null, 'page'));
         if ($tpl_name) {
-            $states[] = '<span class="dashicons dashicons-media-code"></span> ' . $tpl_name;
+            $state_info = $is_customizer ? '' : '<span class="dashicons dashicons-media-code"></span>';
+            $state_info .= $is_customizer ? ' ' : '';
+            $state_info .= $tpl_name;
+            $states[] = $state_info;
         }
     }
 
@@ -480,7 +485,10 @@ function wpuux_display_post_states($states, $post) {
         $pages_site = wputh_setup_pages_site(apply_filters('wputh_pages_site', array()));
         foreach ($pages_site as $page_key => $p_details) {
             if (get_option($page_key) == $post->ID) {
-                $states[] = '<span class="dashicons dashicons-admin-post"></span> ' . $p_details['post_title'];
+                $state_info = $is_customizer ? '' : '<span class="dashicons dashicons-admin-post"></span>';
+                $state_info .= $is_customizer ? ' ' : '';
+                $state_info .= $p_details['post_title'];
+                $states[] = $state_info;
             }
         }
     }
