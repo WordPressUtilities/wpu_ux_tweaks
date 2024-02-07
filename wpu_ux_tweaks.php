@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.10.0
+Version: 1.11.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -18,6 +18,8 @@ License URI: https://opensource.org/licenses/MIT
 if (!defined('ABSPATH')) {
     exit();
 }
+
+define('WPU_UX_TWEAKS_VERSION', '1.11.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -155,6 +157,14 @@ add_filter('the_content', 'wpuux_add_copyright_feed');
 function wpuux_add_copyright_feed($content) {
     if (apply_filters('disable__wpuux_add_copyright_feed', false) || !is_feed()) {
         return $content;
+    }
+    if (function_exists('_deprecated_function')) {
+        $replace_by = 'WPU Better RSS : https://github.com/WordPressUtilities/wpu_better_rss';
+        _deprecated_function('wpuux_add_copyright_feed', WPU_UX_TWEAKS_VERSION, $replace_by);
+    }
+    if (!defined('WPU_UX_TWEAKS__ADD_COPYRIGHT_FLAG')) {
+        error_log('Please disable the feed copyright in ' . __FILE__ . ' by returning true to the hook disable__wpuux_add_copyright_feed and replace the call by ' . $replace_by);
+        define('WPU_UX_TWEAKS__ADD_COPYRIGHT_FLAG', 1);
     }
     return $content . '<hr /><p>&copy; ' . date('Y') . ' ' . get_bloginfo('name') . ' - <a href="' . get_permalink() . '">' . get_the_title() . '</a></p>';
 }
@@ -847,9 +857,11 @@ function wpuux_user_dashboard_widget__content() {
     echo '<ul>';
     foreach ($top_users as $top_user) {
         $last_login = strtotime(get_user_meta($top_user->ID, 'last_login', 1));
+        $online_color = (time() - $last_login < 60) ? 'rgb(0,255,0)' : 'rgba(255,0,0,0.5)';
         $format = get_option('date_format') . ' - ' . get_option('time_format');
         echo '<li>';
-        echo '<strong><a href="' . admin_url('user-edit.php?user_id=' . $top_user->ID) . '">' . esc_html($top_user->display_name) . '</a></strong> : ' . date_i18n($format, $last_login);
+        echo '<strong><span style="color:' . $online_color . '">•</span> <a href="' . admin_url('user-edit.php?user_id=' . $top_user->ID) . '">' . esc_html($top_user->display_name) . '</a></strong> : ';
+        echo date_i18n($format, $last_login);
         echo '</li>';
     }
     echo '</ul>';
