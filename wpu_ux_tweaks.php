@@ -5,12 +5,13 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.11.0
+Version: 1.12.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
 Requires at least: 6.2
 Requires PHP: 8.0
+Network: Optional
 License: MIT License
 License URI: https://opensource.org/licenses/MIT
 */
@@ -19,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.11.0');
+define('WPU_UX_TWEAKS_VERSION', '1.12.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -149,7 +150,7 @@ function wpuux_uxt_clean_filename($string) {
   Add copyright to content in RSS feed
 ---------------------------------------------------------- */
 
-// src : http://www.catswhocode.com/blog/useful-snippets-to-protect-your-wordpress-blog-against-scrapers
+// src : https://www.catswhocode.com/blog/useful-snippets-to-protect-your-wordpress-blog-against-scrapers
 
 add_filter('the_excerpt_rss', 'wpuux_add_copyright_feed');
 add_filter('the_content', 'wpuux_add_copyright_feed');
@@ -265,7 +266,7 @@ function wpuux_new_mail_from_name($name) {
   Prevent heavy 404 pages for static files
 ---------------------------------------------------------- */
 
-/* From http://www.binarymoon.co.uk/2011/04/optimizing-wordpress-404s/ */
+/* From https://www.binarymoon.co.uk/2011/04/optimizing-wordpress-404s/ */
 
 add_filter('template_redirect', 'wpuux_preventheavy404');
 function wpuux_preventheavy404() {
@@ -916,4 +917,39 @@ function wpuux_wp_get_attachment_image_attributes_lazyloading($attr, $attachment
         $attr['loading'] = 'lazy';
     }
     return $attr;
+}
+
+/* ----------------------------------------------------------
+  Search PDFs in wp_link
+---------------------------------------------------------- */
+
+add_filter('wp_link_query', 'wpuux_wp_link_query_pdf_in_wp_link', 10, 2);
+function wpuux_wp_link_query_pdf_in_wp_link($results, $query) {
+
+    if (!isset($query['s']) || !$query['s']) {
+        return $results;
+    }
+
+    $base_query = array(
+        'post_type' => 'attachment',
+        'post_mime_type' => 'application/pdf',
+        'post_status' => 'inherit',
+        'numberposts' => -1
+    );
+
+    if (strpos('pdf', $query['s']) === false && 'pdf' != $query['s']) {
+        $base_query['s'] = $query['s'];
+    }
+    $attachments_query = get_posts($base_query);
+
+    foreach ($attachments_query as $att) {
+        $results[] = array(
+            'ID' => false,
+            'title' => $att->post_title,
+            'permalink' => wp_get_attachment_url($att->ID),
+            'info' => 'PDF'
+        );
+    }
+
+    return $results;
 }
