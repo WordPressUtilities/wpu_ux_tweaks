@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.12.0
+Version: 1.13.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.12.0');
+define('WPU_UX_TWEAKS_VERSION', '1.13.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -578,6 +578,25 @@ function wpuux_add_menus__hide_menuhead_full() {
         unset($submenu['themes.php'][6]);
         unset($submenu['themes.php'][15]);
         unset($submenu['themes.php'][20]);
+    }
+
+    $removed_menus = array(
+        'themes.php' => array(
+            'site-editor.php?path=/patterns'
+        )
+    );
+
+    foreach($removed_menus as $menu_slug => $menu_items) {
+        if (!isset($submenu[$menu_slug])) {
+            continue;
+        }
+        foreach($menu_items as $menu_item) {
+            foreach($submenu[$menu_slug] as $key => $submenu_item) {
+                if (isset($submenu_item[2]) && $submenu_item[2] == $menu_item) {
+                    unset($submenu[$menu_slug][$key]);
+                }
+            }
+        }
     }
 }
 
