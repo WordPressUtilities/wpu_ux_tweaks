@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.13.0
+Version: 1.14.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.13.0');
+define('WPU_UX_TWEAKS_VERSION', '1.14.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -493,9 +493,24 @@ function wpuux_display_post_states($states, $post) {
 
     /* Display wputh page name */
     if (function_exists('wputh_setup_pages_site')) {
+
+        $languages = array();
+        if (function_exists('pll_languages_list')) {
+            $languages = pll_languages_list(array('fields' => 'slug'));
+        }
+
         $pages_site = wputh_setup_pages_site(apply_filters('wputh_pages_site', array()));
         foreach ($pages_site as $page_key => $p_details) {
-            if (get_option($page_key) == $post->ID) {
+            $page_id = get_option($page_key);
+            $page_ids = array($page_id);
+            if ($languages && function_exists('pll_get_post')) {
+                $page_ids = array();
+                foreach ($languages as $lang) {
+                    $page_ids[] = pll_get_post($page_id, $lang);
+                }
+            }
+
+            if (in_array($post->ID, $page_ids)) {
                 $state_info = $is_customizer ? '' : '<span class="dashicons dashicons-admin-post"></span>';
                 $state_info .= $is_customizer ? ' ' : '';
                 $state_info .= $p_details['post_title'];
@@ -586,12 +601,12 @@ function wpuux_add_menus__hide_menuhead_full() {
         )
     );
 
-    foreach($removed_menus as $menu_slug => $menu_items) {
+    foreach ($removed_menus as $menu_slug => $menu_items) {
         if (!isset($submenu[$menu_slug])) {
             continue;
         }
-        foreach($menu_items as $menu_item) {
-            foreach($submenu[$menu_slug] as $key => $submenu_item) {
+        foreach ($menu_items as $menu_item) {
+            foreach ($submenu[$menu_slug] as $key => $submenu_item) {
                 if (isset($submenu_item[2]) && $submenu_item[2] == $menu_item) {
                     unset($submenu[$menu_slug][$key]);
                 }
