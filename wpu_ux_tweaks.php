@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.15.0
+Version: 1.15.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.15.0');
+define('WPU_UX_TWEAKS_VERSION', '1.15.1');
 
 /* ----------------------------------------------------------
   Clean head
@@ -901,16 +901,6 @@ function wpuux_user_dashboard_widget__content() {
     }
     echo '</ul>';
 
-}
-
-/* ----------------------------------------------------------
-  Disable Block Editor default FullScreen mode in WordPress 5.4
----------------------------------------------------------- */
-
-add_action('enqueue_block_editor_assets', 'jba_disable_editor_fullscreen_by_default');
-function jba_disable_editor_fullscreen_by_default() {
-    $script = "jQuery( window ).load(function() { const isFullscreenMode = wp.data.select( 'core/edit-post' ).isFeatureActive( 'fullscreenMode' ); if ( isFullscreenMode ) { wp.data.dispatch( 'core/edit-post' ).toggleFeature( 'fullscreenMode' ); } });";
-    wp_add_inline_script('wp-blocks', $script);
 }
 
 /* ----------------------------------------------------------
