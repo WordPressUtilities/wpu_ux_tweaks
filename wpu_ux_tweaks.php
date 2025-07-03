@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.15.1
+Version: 1.16.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.15.1');
+define('WPU_UX_TWEAKS_VERSION', '1.16.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -977,3 +977,18 @@ function wpuux_wp_link_query_pdf_in_wp_link($results, $query) {
 
     return $results;
 }
+
+/* ----------------------------------------------------------
+  Force display excerpt field
+  https://wordpress.stackexchange.com/a/286576
+---------------------------------------------------------- */
+
+add_action('admin_head', function () {
+    if (!apply_filters('enable__wpuux_force_display_excerpt_field', false)) {
+        return;
+    }
+    echo '<style type="text/css">';
+    echo '#postexcerpt { display: block !important; }';
+    echo 'label[for=postexcerpt-hide] { display: none !important; }';
+    echo '</style>';
+});
