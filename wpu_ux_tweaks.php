@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.16.0
+Version: 1.17.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.16.0');
+define('WPU_UX_TWEAKS_VERSION', '1.17.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -336,6 +336,18 @@ function wpuux_clean_default_image_title($post_ID) {
         'ID' => $post_ID,
         'post_title' => $post->post_title
     ));
+    return $post_ID;
+}
+
+/* Set default image alt from title
+-------------------------- */
+
+add_action('add_attachment', 'wpuux_set_default_image_alt');
+function wpuux_set_default_image_alt($post_ID) {
+    $current_alt = get_post_meta($post_ID, '_wp_attachment_image_alt', true);
+    if (!$current_alt) {
+        update_post_meta($post_ID, '_wp_attachment_image_alt', get_the_title($post_ID));
+    }
     return $post_ID;
 }
 
