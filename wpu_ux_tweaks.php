@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.17.1
+Version: 1.17.2
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.17.1');
+define('WPU_UX_TWEAKS_VERSION', '1.17.2');
 
 /* ----------------------------------------------------------
   Clean head
@@ -284,12 +284,16 @@ function wpuux_preventheavy404() {
         'js',
         'log',
         'mp4',
+        'otf',
         'png',
         'rar',
         'tar',
+        'ttf',
         'txt',
         'webm',
         'webp',
+        'woff',
+        'woff2',
         'xml',
         'zip'
     ));
