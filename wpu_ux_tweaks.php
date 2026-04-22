@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.17.3
+Version: 1.18.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.17.3');
+define('WPU_UX_TWEAKS_VERSION', '1.18.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -1010,3 +1010,29 @@ add_action('admin_head', function () {
     echo 'label[for=postexcerpt-hide] { display: none !important; }';
     echo '</style>';
 });
+
+/* ----------------------------------------------------------
+  Add class for menu items with grandchildren
+---------------------------------------------------------- */
+
+add_filter('wp_nav_menu_objects', 'wpuux_add_menu_item_has_grandchildren_class');
+function wpuux_add_menu_item_has_grandchildren_class($items) {
+    $items_with_children = [];
+    foreach ($items as $item) {
+        if ($item->menu_item_parent) {
+            $items_with_children[$item->menu_item_parent] = true;
+        }
+    }
+    foreach ($items as $item) {
+        if (isset($items_with_children[$item->ID]) && $item->menu_item_parent) {
+            $grandparent_id = $item->menu_item_parent;
+            foreach ($items as $potential_grandparent) {
+                if ($potential_grandparent->ID == $grandparent_id) {
+                    $potential_grandparent->classes[] = 'menu-item-has-grandchildren';
+                    break;
+                }
+            }
+        }
+    }
+    return $items;
+}
