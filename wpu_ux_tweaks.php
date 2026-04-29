@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.18.0
+Version: 1.19.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.18.0');
+define('WPU_UX_TWEAKS_VERSION', '1.19.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -309,6 +309,22 @@ function wpuux_preventheavy404() {
         do_action('wpuux_preventheavy404_before_headers', $fileExtension);
         status_header(404);
         exit('error');
+    }
+}
+
+/* ----------------------------------------------------------
+  Prevent heavy 404 pages for .well-known files
+---------------------------------------------------------- */
+
+add_filter('template_redirect', 'wpuux_preventheavy404_wellknown');
+function wpuux_preventheavy404_wellknown() {
+    if (!is_404()) {
+        return;
+    }
+    if (!empty($_SERVER['REQUEST_URI']) && strpos($_SERVER['REQUEST_URI'], '/.well-known/') === 0) {
+        do_action('wpuux_preventheavy404_wellknown_before_headers');
+        status_header(404);
+        exit('{}');
     }
 }
 
