@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.19.0
+Version: 1.19.1
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.19.0');
+define('WPU_UX_TWEAKS_VERSION', '1.19.1');
 
 /* ----------------------------------------------------------
   Clean head
@@ -661,7 +661,7 @@ class wpuux_login_logo {
     public function init() {
         add_filter('get_site_icon_url', array(&$this, 'override_favicon_image'), 10, 3);
         add_filter('get_header_image', array(&$this, 'override_header_image'), 10, 1);
-        if (has_header_image()) {
+        if (has_header_image() || $this->get_custom_logo_url()) {
             add_action('login_enqueue_scripts', array(&$this, 'set_admin_image'));
         }
         add_filter('login_headerurl', array(&$this, 'set_url'));
@@ -701,6 +701,15 @@ class wpuux_login_logo {
         return $url;
     }
 
+    public function get_custom_logo_url() {
+        $custom_logo_id = get_theme_mod('custom_logo');
+        if (!$custom_logo_id) {
+            return '';
+        }
+        $logo = wp_get_attachment_image_src($custom_logo_id, 'full');
+        return $logo ? $logo[0] : '';
+    }
+
     public function override_header_image($image) {
         if (defined('WPU_UX_TWEAKS_HEADER_IMAGE_URL')) {
             return WPU_UX_TWEAKS_HEADER_IMAGE_URL;
@@ -727,7 +736,12 @@ class wpuux_login_logo {
     }
 
     public function set_admin_image() {
-        $header_image = apply_filters('wpuux_login_logo_admin_header_image', get_header_image());
+        $header_image = $this->get_custom_logo_url();
+        if (!$header_image) {
+            $header_image = get_header_image();
+        }
+
+        $header_image = apply_filters('wpuux_login_logo_admin_header_image', $header_image);
         echo '<style type="text/css">#login h1 a,.login h1 a{margin:0 24px;width:auto;background-size:contain;background-image:url(' . $header_image . ')}</style>';
     }
 
