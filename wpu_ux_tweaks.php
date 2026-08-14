@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.19.2
+Version: 1.20.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.19.2');
+define('WPU_UX_TWEAKS_VERSION', '1.20.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -492,6 +492,33 @@ EOT;
 }
 
 new wpuux_set_media_select_uploaded_init();
+
+/* Avoid thumbnail generation for animated GIFs
+ -------------------------- */
+
+/* Do not scale down the upload: scaling flattens the animation */
+add_filter('big_image_size_threshold', 'wpuux_no_scaling_for_animated_gifs', 10, 4);
+function wpuux_no_scaling_for_animated_gifs($threshold, $imagesize, $file, $attachment_id) {
+    return wpuux_is_animated_gif($file) ? false : $threshold;
+}
+
+/* Do not generate any subsize */
+add_filter('intermediate_image_sizes_advanced', 'wpuux_avoid_thumbnail_generation_for_animated_gifs', 10, 3);
+function wpuux_avoid_thumbnail_generation_for_animated_gifs($new_sizes, $image_meta, $attachment_id) {
+    if (get_post_mime_type($attachment_id) !== 'image/gif') {
+        return $new_sizes;
+    }
+    return wpuux_is_animated_gif(get_attached_file($attachment_id)) ? array() : $new_sizes;
+}
+
+function wpuux_is_animated_gif($file_path) {
+    if (!$file_path || !is_readable($file_path)) {
+        return false;
+    }
+    // More than one Graphic Control Extension block means multiple frames
+    $nb_frames = preg_match_all('#\x21\xF9\x04.{4}\x00[\x2C\x21]#s', file_get_contents($file_path));
+    return $nb_frames > 1;
+}
 
 /* ----------------------------------------------------------
   Admin : add page template as post state
