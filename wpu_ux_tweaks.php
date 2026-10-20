@@ -5,11 +5,11 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.20.0
+Version: 1.21.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
-Requires at least: 6.2
+Requires at least: 6.9
 Requires PHP: 8.0
 Network: Optional
 License: MIT License
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.20.0');
+define('WPU_UX_TWEAKS_VERSION', '1.21.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -587,15 +587,32 @@ function wpuux_display_post_states($states, $post) {
 ---------------------------------------------------------- */
 
 add_action('init', 'wpuux_disable_newemojis');
-function wpuux_disable_newemojis() {
+function wpuux_disable_newemojis(): void {
     if (apply_filters('disable__wpuux_disable_newemojis', false)) {
         return;
     }
+
+    // Disable emoji scripts.
     remove_action('wp_head', 'print_emoji_detection_script', 7);
     remove_action('admin_print_scripts', 'print_emoji_detection_script');
+
+    // Disable emoji styles.
     remove_action('wp_print_styles', 'print_emoji_styles');
     remove_action('admin_print_styles', 'print_emoji_styles');
-    add_filter('emoji_svg_url', '__return_empty_string');
+
+    // Disable emoji conversion in feeds and emails.
+    remove_filter('the_content_feed', 'wp_staticize_emoji');
+    remove_filter('comment_text_rss', 'wp_staticize_emoji');
+    remove_filter('wp_mail', 'wp_staticize_emoji_for_email');
+
+    // Disable emoji support in the classic editor.
+    add_filter('tiny_mce_plugins', static function (array $plugins): array {
+        return array_values(array_diff($plugins, ['wpemoji']));
+    });
+
+    // Restore the default SVG URL behavior if previously disabled.
+    remove_filter('emoji_svg_url', '__return_empty_string');
+    remove_filter('emoji_svg_url', '__return_false');
 }
 
 /* ----------------------------------------------------------
