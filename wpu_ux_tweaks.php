@@ -5,7 +5,7 @@ Plugin Name: WPU UX Tweaks
 Plugin URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Update URI: https://github.com/WordPressUtilities/wpu_ux_tweaks
 Description: Adds UX enhancement & tweaks to WordPress
-Version: 1.21.1
+Version: 1.22.0
 Author: Darklg
 Author URI: https://darklg.me/
 Text Domain: wpu_ux_tweaks
@@ -20,7 +20,7 @@ if (!defined('ABSPATH')) {
     exit();
 }
 
-define('WPU_UX_TWEAKS_VERSION', '1.21.1');
+define('WPU_UX_TWEAKS_VERSION', '1.22.0');
 
 /* ----------------------------------------------------------
   Clean head
@@ -625,6 +625,19 @@ function wpuux_disable_oembed() {
     }
     remove_action('wp_head', 'wp_oembed_add_discovery_links');
     remove_action('wp_head', 'wp_oembed_add_host_js');
+}
+
+/* ----------------------------------------------------------
+  Disable WP random content redirect
+  https://make.wordpress.org/core/2026/11/05/your-content-is-going-to-get-more-random/
+---------------------------------------------------------- */
+
+add_filter('wp_enable_random_content_redirect', 'wpuux_disable_random_content_redirect');
+function wpuux_disable_random_content_redirect($enabled) {
+    if (apply_filters('disable__wpuux_disable_random_content_redirect', false)) {
+        return $enabled;
+    }
+    return false;
 }
 
 /* ----------------------------------------------------------
